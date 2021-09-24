@@ -1,11 +1,7 @@
 package org.comppress.comppressbackend.mapper;
 
-import org.comppress.comppressbackend.dto.PreferenceDto;
-import org.comppress.comppressbackend.dto.RoleDto;
-import org.comppress.comppressbackend.dto.UserDto;
-import org.comppress.comppressbackend.entity.Preference;
-import org.comppress.comppressbackend.entity.Role;
-import org.comppress.comppressbackend.entity.User;
+import org.comppress.comppressbackend.dto.*;
+import org.comppress.comppressbackend.entity.*;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
@@ -19,5 +15,11 @@ public interface MapstructMapper {
     Preference preferenceDtoToPreference(PreferenceDto PreferenceDto);
     RoleDto roleToRoleDto(Role role);
     Role roleDtoToRole(RoleDto roleDto);
+    ArticleDto articleToArticleDto(Article article);
+    Article articleDtoToArticle(ArticleDto articleDto);
+    SourceDto sourceToSourceDto(Source source);
+    Source sourceDtoToSource(SourceDto sourceDto);
+    RatingDto ratingToRatingDto(Rating rating);
+    Rating ratingDtoToRating(RatingDto ratingDto);
 
 }
