@@ -2,6 +2,8 @@ package org.comppress.comppressbackend.mapper;
 
 import org.comppress.comppressbackend.dto.*;
 import org.comppress.comppressbackend.entity.*;
+import org.comppress.comppressbackend.jsonmodel.ArticleJsonModel;
+import org.comppress.comppressbackend.jsonmodel.SourceJsonModel;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
@@ -21,5 +23,8 @@ public interface MapstructMapper {
     Source sourceDtoToSource(SourceDto sourceDto);
     RatingDto ratingToRatingDto(Rating rating);
     Rating ratingDtoToRating(RatingDto ratingDto);
+
+    ArticleDto articleJsonModelToArticleDto(ArticleJsonModel articleJsonModel);
+    SourceDto sourceJsonModelToSourceDto(SourceJsonModel sourceJsonModel);
 
 }
