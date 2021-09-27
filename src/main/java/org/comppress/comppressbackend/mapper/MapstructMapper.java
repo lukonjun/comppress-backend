@@ -9,6 +9,8 @@ import org.comppress.comppressbackend.entity.User;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @Mapper(componentModel = "spring")
 public interface MapstructMapper {
@@ -19,5 +21,8 @@ public interface MapstructMapper {
     Preference preferenceDtoToPreference(PreferenceDto PreferenceDto);
     RoleDto roleToRoleDto(Role role);
     Role roleDtoToRole(RoleDto roleDto);
+    List<RoleDto> roleListToRoleDtoList(List<Role> roleList);
+    List<PreferenceDto> preferenceListToPreferenceDtoList(List<Preference> preferencesList);
+    List<UserDto> userListToUserListDto(List<User> userList);
 
 }
