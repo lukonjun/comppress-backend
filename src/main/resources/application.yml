@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/comppress
+    url: jdbc:mysql://127.0.0.1:3306/comppress?allowPublicKeyRetrieval=true
     username: root
     password: secret
   jpa:
@@ -13,3 +13,5 @@ server:
   port: 8081
   servlet:
     context-path: /comppress
+news-api:
+  token: f02dced1b8b64e6bb04e6443cf4d02e8

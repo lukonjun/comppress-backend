@@ -9,6 +9,8 @@ import org.comppress.comppressbackend.jsonmodel.NewsJsonModel;
 import org.comppress.comppressbackend.mapper.MapstructMapper;
 import org.comppress.comppressbackend.repository.ArticleRepository;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -23,22 +25,36 @@ import java.util.ArrayList;
 
 @Component
 @Slf4j
-@Data
 @EnableScheduling
 public class NewsClient {
 
-    public static final String API_TOKEN = "f02dced1b8b64e6bb04e6443cf4d02e8";
+    private final String apiToken;
 
     private final MapstructMapper mapstructMapper;
 
     private final ArticleRepository articleRepository;
 
+    @Autowired
+    public NewsClient(@Value("${news-api.token:aDefaultUrl}") String apiToken, MapstructMapper mapstructMapper, ArticleRepository articleRepository) {
+        this.apiToken = apiToken;
+        this.mapstructMapper = mapstructMapper;
+        this.articleRepository = articleRepository;
+    }
+
     @Scheduled(fixedRate = 10 * 60 * 1000) // Every 10 minutes
     @Test
     public void fetchNews() throws URISyntaxException, IOException, InterruptedException {
 
-        String queryParameter = "country=de&apiKey=" + API_TOKEN;
-        String urlString = "https://newsapi.org/v2/top-headlines" + "?" + queryParameter;
+        // Keyword or phrase. Eg: find all articles containing the word 'Microsoft'.
+        // Date published. Eg: find all articles published yesterday.
+        // Source domain name. Eg: find all articles published on thenextweb.com.
+        // Language. Eg: find all articles written in English.
+        // Find all News last 24h, from spiegel in german
+        // Api Documentation https://newsapi.org/docs/endpoints/everything
+        // https://newsapi.org/v2/everything?from=2021-09-26&domains=spiegel.de
+
+        String queryParameter = "from=2021-09-26&domains=spiegel.de&apiKey=" + apiToken;
+        String urlString = "https://newsapi.org/v2/everything" + "?" + queryParameter;
 
         log.info("Build HTTP request");
         HttpRequest request = HttpRequest.newBuilder()
@@ -68,8 +84,14 @@ public class NewsClient {
 
         log.info("Size of Entity List: " + testEntityList.size());
 
+        // Duplicate Entry check needs to be done
         testEntityList.forEach(article -> {
-            articleRepository.save(article);
+            try {
+                articleRepository.save(article);
+            }catch (Exception e){
+                log.error("Exception occurs during save of article " + article.getUrl());
+                e.printStackTrace();
+            }
         });
 
     }
