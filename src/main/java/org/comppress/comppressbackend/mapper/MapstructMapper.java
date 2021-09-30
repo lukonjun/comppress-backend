@@ -1,13 +1,13 @@
 package org.comppress.comppressbackend.mapper;
 
-import org.comppress.comppressbackend.dto.PreferenceDto;
-import org.comppress.comppressbackend.dto.RoleDto;
-import org.comppress.comppressbackend.dto.UserDto;
-import org.comppress.comppressbackend.entity.Preference;
-import org.comppress.comppressbackend.entity.Role;
-import org.comppress.comppressbackend.entity.User;
+import org.comppress.comppressbackend.dto.*;
+import org.comppress.comppressbackend.entity.*;
+import org.comppress.comppressbackend.jsonmodel.ArticleJsonModel;
+import org.comppress.comppressbackend.jsonmodel.SourceJsonModel;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @Mapper(componentModel = "spring")

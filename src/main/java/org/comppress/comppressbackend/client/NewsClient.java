@@ -41,7 +41,7 @@ public class NewsClient {
         this.articleRepository = articleRepository;
     }
 
-    @Scheduled(fixedRate = 10 * 60 * 1000) // Every 10 minutes
+    // @Scheduled(fixedRate = 10 * 60 * 1000) // Every 10 minutes
     @Test
     public void fetchNews() throws URISyntaxException, IOException, InterruptedException {
 
