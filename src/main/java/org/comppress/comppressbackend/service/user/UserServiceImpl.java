@@ -2,8 +2,10 @@ package org.comppress.comppressbackend.service.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.comppress.comppressbackend.dto.UserDto;
+import org.comppress.comppressbackend.entity.Role;
 import org.comppress.comppressbackend.entity.User;
 import org.comppress.comppressbackend.mapper.MapstructMapper;
+import org.comppress.comppressbackend.repository.RoleRepository;
 import org.comppress.comppressbackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,18 +18,27 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final MapstructMapper mapstructMapper;
+    private final RoleRepository roleRepository;
 
-    public UserServiceImpl(UserRepository userRepository, MapstructMapper mapstructMapper) {
+    public UserServiceImpl(UserRepository userRepository, MapstructMapper mapstructMapper, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.mapstructMapper = mapstructMapper;
+        this.roleRepository = roleRepository;
     }
 
     @Override
     public Long create(UserDto userDto) {
         User user = mapstructMapper.userDtoToUser(userDto);
-        User saved = userRepository.save(user);
-        log.info("Created User with id {}", saved.getId());
-        return saved.getId();
+        Optional<Role> found = roleRepository.findByName(userDto.getRoleDto().getName());
+        if(found.isPresent()){
+            User saved = userRepository.save(user);
+            log.info("Created User with id {}", saved.getId());
+            saved.setRole(found.get());
+            userRepository.save(saved);
+            return saved.getId();
+        }
+        log.error("Invalid Role name provided {}", userDto);
+        throw new RuntimeException("Invalid Role " + userDto.getRoleDto().getName() + " can not create User");
     }
 
     @Override
