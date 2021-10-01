@@ -2,16 +2,16 @@ package org.comppress.comppressbackend.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.comppress.comppressbackend.dto.ApiResponse;
+import org.comppress.comppressbackend.dto.PreferenceDto;
 import org.comppress.comppressbackend.dto.RoleDto;
 import org.comppress.comppressbackend.dto.UserDto;
 import org.comppress.comppressbackend.service.user.UserService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 @Slf4j
 public class UserController {
 
@@ -23,69 +23,42 @@ public class UserController {
 
     @PostMapping
     public ApiResponse<Long> create(@RequestBody UserDto userDto){
-        try{
-            Long id = userService.create(userDto);
-            return new ApiResponse<>(id,"Success",  200 );
-        }catch (Exception e){
-            log.error("Encountered an exception {} while creating a new user",e.getMessage());
-            return new ApiResponse<>(null,"Failed: " +  e.getMessage(), 501);
-        }
+        return new ApiResponse<>(userService.create(userDto),"Success",  200 );
     }
 
     @GetMapping("/{id}")
     public ApiResponse<UserDto> findById(@PathVariable Long id){
-        try{
-            Optional<UserDto> optionalRoleDto = userService.findById(id);
-            if(optionalRoleDto.isPresent()){
-                return new ApiResponse<>(optionalRoleDto.get(),"Success",  200 );
-            }else{
-                return new ApiResponse<>(null,"User with" + id + " Not Found",  404 );
-            }
-        }catch (Exception e){
-            log.error("Encountered an exception {} while finding a User by id",e.getMessage());
-            return new ApiResponse<>(null,"Failed: " +  e.getMessage(), 501);
-        }
-    }
-
-    @GetMapping("/filter")
-    public ApiResponse<UserDto> findByEmail(@RequestParam String email){
-        try{
-            Optional<UserDto> optionalRoleDto = userService.findByEmail(email);
-            if(optionalRoleDto.isPresent()){
-                return new ApiResponse<>(optionalRoleDto.get(),"Success",  200 );
-            }else{
-                return new ApiResponse<>(null,"Role with email" + email + " Not Found",  404 );
-            }
-        }catch (Exception e){
-            log.error("Encountered an exception {} while finding a role by email",e.getMessage());
-            return new ApiResponse<>(null,"Failed: " +  e.getMessage(), 501);
-        }
-    }
-
-    @GetMapping("/username/{username}")
-    public ApiResponse<UserDto> findByUsername(@PathVariable String username){
-        try{
-            Optional<UserDto> optionalRoleDto = userService.findByUsername(username);
-            if(optionalRoleDto.isPresent()){
-                return new ApiResponse<>(optionalRoleDto.get(),"Success",  200 );
-            }else{
-                return new ApiResponse<>(null,"Role with username" + username + " Not Found",  404 );
-            }
-        }catch (Exception e){
-            log.error("Encountered an exception {} while finding a role by username",e.getMessage());
-            return new ApiResponse<>(null,"Failed: " +  e.getMessage(), 501);
-        }
+        return new ApiResponse<>(userService.findById(id).get(),"Success",  200 );
     }
 
     @GetMapping
-    public ApiResponse<List<UserDto>> findAll(){
+    public ApiResponse<List<UserDto>> find(@RequestParam Map<String, String> requestParameter){
         try{
-            List<UserDto> userDtoList = userService.findAll();
-            return new ApiResponse<>(userDtoList,"Success",  200);
+            if(requestParameter == null || requestParameter.size() == 0){
+                List<UserDto> userDtoList = userService.findAll();
+                return new ApiResponse<>(userDtoList,"Success",  200);
+            }else if(requestParameter.containsKey("username")){
+                Optional<UserDto> optionalUserDto = userService.findByUsername(requestParameter.get("username"));
+                if(optionalUserDto.isPresent()){
+                    return new ApiResponse<>(Collections.singletonList(optionalUserDto.get()),"Success",  200 );
+                }else{
+                    return new ApiResponse<>(null,"User with username" + requestParameter.get("username") + " Not Found",  404 );
+                }
+            }else if(requestParameter.containsKey("email")){
+                Optional<UserDto> optionalUserDto = userService.findByEmail(requestParameter.get("email"));
+                if(optionalUserDto.isPresent()){
+                    return new ApiResponse<>(Collections.singletonList(optionalUserDto.get()),"Success",  200 );
+                }else{
+                    return new ApiResponse<>(null,"User with email" + requestParameter.get("email") + " Not Found",  404 );
+                }
+            }
         }catch (Exception e){
             log.error("Encountered an exception {} while fetching all Users",e.getMessage());
             return new ApiResponse<>(null,"Failed: " +  e.getMessage(), 501);
         }
+        log.error("Query Parameters Invalid");
+        return new ApiResponse<>(null,"Query Parameter Invalid", 501);
     }
+
 
 }

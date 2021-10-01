@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.comppress.comppressbackend.dto.UserDto;
 import org.comppress.comppressbackend.entity.Role;
 import org.comppress.comppressbackend.entity.User;
+import org.comppress.comppressbackend.exception.InvalidRequestException;
+import org.comppress.comppressbackend.exception.ResourceNotFoundException;
 import org.comppress.comppressbackend.mapper.MapstructMapper;
 import org.comppress.comppressbackend.repository.RoleRepository;
 import org.comppress.comppressbackend.repository.UserRepository;
@@ -28,6 +30,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Long create(UserDto userDto) {
+        if(userDto.getEmail()==null){
+            log.error("Invalid User create Request, missing email on the create");
+            throw new InvalidRequestException("Cannot create user, missing mandatory field");
+        }
+        if(userRepository.existsByEmail(userDto.getEmail())){
+            log.error("Email already exist");
+            throw new InvalidRequestException("Email already exist");
+        }
         User user = mapstructMapper.userDtoToUser(userDto);
         Optional<Role> found = roleRepository.findByName(userDto.getRoleDto().getName());
         if(found.isPresent()){
@@ -38,7 +48,7 @@ public class UserServiceImpl implements UserService {
             return saved.getId();
         }
         log.error("Invalid Role name provided {}", userDto);
-        throw new RuntimeException("Invalid Role " + userDto.getRoleDto().getName() + " can not create User");
+        throw new InvalidRequestException("Invalid Role " + userDto.getRoleDto().getName() + " can not create User");
     }
 
     @Override
@@ -49,7 +59,7 @@ public class UserServiceImpl implements UserService {
             return Optional.of(mapstructMapper.userToUserDto(found.get()));
         }
         log.error("No User found with id {}", id);
-        return Optional.empty();
+        throw new ResourceNotFoundException("User with id " + id + " not found");
     }
 
     @Override

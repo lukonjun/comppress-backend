@@ -3,6 +3,7 @@ package org.comppress.comppressbackend.service.role;
 import lombok.extern.slf4j.Slf4j;
 import org.comppress.comppressbackend.dto.RoleDto;
 import org.comppress.comppressbackend.entity.Role;
+import org.comppress.comppressbackend.exception.ResourceNotFoundException;
 import org.comppress.comppressbackend.mapper.MapstructMapper;
 import org.comppress.comppressbackend.repository.RoleRepository;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class RoleServiceImpl implements RoleService {
             return Optional.of(mapstructMapper.roleToRoleDto(found.get()));
         }
         log.error("No Role found with id {}", id);
-        return Optional.empty();
+        throw new ResourceNotFoundException("Role with id " + id + " not found");
     }
 
     @Override

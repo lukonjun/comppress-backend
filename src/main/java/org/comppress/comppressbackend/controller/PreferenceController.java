@@ -6,11 +6,10 @@ import org.comppress.comppressbackend.dto.PreferenceDto;
 import org.comppress.comppressbackend.service.preference.PreferenceService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
-@RequestMapping("/preference")
+@RequestMapping("/preferences")
 @Slf4j
 public class PreferenceController {
 
@@ -46,41 +45,29 @@ public class PreferenceController {
         }
     }
 
-    @GetMapping("/filter")
-    public ApiResponse<PreferenceDto> findByNameAndType(@RequestParam String name, @RequestParam String type){
-        try{
-            Optional<PreferenceDto> optionalRoleDto = preferenceService.findByNameAndType(name,type);
-            if(optionalRoleDto.isPresent()){
-                return new ApiResponse<>(optionalRoleDto.get(),"Success",  200 );
-            }else{
-                return new ApiResponse<>(null,"Preference with name" + name + " and type " + type + " Not Found",  404 );
-            }
-        }catch (Exception e){
-            log.error("Encountered an exception {} while finding a Preference by name and type",e.getMessage());
-            return new ApiResponse<>(null,"Failed: " +  e.getMessage(), 501);
-        }
-    }
-
-    @GetMapping("/type/{type}")
-    public ApiResponse<List<PreferenceDto>> findByType(@PathVariable String type){
-        try{
-            List<PreferenceDto> preferenceDtoList = preferenceService.findByType(type);
-            return new ApiResponse<>(preferenceDtoList,"Success",  200);
-        }catch (Exception e){
-            log.error("Encountered an exception {} while finding a Preference by type",e.getMessage());
-            return new ApiResponse<>(null,"Failed: " +  e.getMessage(), 501);
-        }
-    }
-
     @GetMapping
-    public ApiResponse<List<PreferenceDto>> findAll(){
+    public ApiResponse<List<PreferenceDto>> find(@RequestParam Map<String, String> requestParameter){
         try{
-            List<PreferenceDto> roleDtoList = preferenceService.findAll();
-            return new ApiResponse<>(roleDtoList,"Success",  200);
+            if(requestParameter == null || requestParameter.size() == 0){
+                List<PreferenceDto> roleDtoList = preferenceService.findAll();
+                return new ApiResponse<>(roleDtoList,"Success",  200);
+            }else if(requestParameter.containsKey("type") && requestParameter.containsKey("name")){
+                Optional<PreferenceDto> optionalPreferenceDto = preferenceService.findByNameAndType(requestParameter.get("name"),requestParameter.get("type"));
+                if(optionalPreferenceDto.isPresent()){
+                    return new ApiResponse<>(Collections.singletonList(optionalPreferenceDto.get()),"Success",  200 );
+                }else{
+                    return new ApiResponse<>(null,"Preference with name" + requestParameter.get("name") + " and type " + requestParameter.get("type") + " Not Found",  404 );
+                }
+            }else if(requestParameter.containsKey("type")){
+                List<PreferenceDto> preferenceDtoList = preferenceService.findByType(requestParameter.get("type"));
+                return new ApiResponse<>(preferenceDtoList,"Success",  200);
+            }
         }catch (Exception e){
             log.error("Encountered an exception {} while fetching all Preferences",e.getMessage());
             return new ApiResponse<>(null,"Failed: " +  e.getMessage(), 501);
         }
+        log.error("Query Parameters Invalid");
+        return new ApiResponse<>(null,"Query Parameter Invalid", 501);
     }
 
 }
